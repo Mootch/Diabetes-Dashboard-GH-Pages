@@ -45,7 +45,7 @@ def _(charts_by_day, combined_stdev_chart, date_range, mo, multi_day):
 
 @app.cell
 def _(date_range, heatmap_charts, hm_view, mo):
-    mo.vstack([date_range, heatmap_charts]) if hm_view.value else None
+    mo.vstack([date_range, mo.vstack(heatmap_charts)]) if hm_view.value else None
     return
 
 
@@ -56,9 +56,12 @@ def _(data_view, df_glucose, df_treatment, mo):
 
 
 @app.cell
-def _():
+async def _():
     import marimo as mo
 
+    if mo.notebook_dir() != mo.notebook_location():
+        import micropip
+        await micropip.install('polars')
     return (mo,)
 
 
