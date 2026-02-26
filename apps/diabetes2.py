@@ -19,8 +19,8 @@ def _(f_csv, max_glucose_threshold, min_glucose_threshold, mo):
 
 
 @app.cell
-def _(f_csv, mo):
-    mo.stop(not f_csv.value)
+def _(mo):
+    # mo.stop(not f_csv.value)
 
     single_day = mo.ui.checkbox(label='Single Day View', value=True)
     multi_day = mo.ui.checkbox(label='Multi Day View')
@@ -76,9 +76,14 @@ def _():
 
 @app.cell
 def _(f_csv, io, mo, pl):
-    mo.stop(not f_csv.value)
+    # mo.stop(not f_csv.value)
 
-    csv_content = f_csv.value[0].contents.decode(encoding='utf-8')
+    if not f_csv.value:
+        with open(f"{mo.notebook_location()}/public/CSV_sample.csv", 'r') as file:
+            csv_content = file.read()
+    else:
+        csv_content = f_csv.value[0].contents.decode(encoding='utf-8')
+
     lines = csv_content.splitlines()
 
     tables_data = []
