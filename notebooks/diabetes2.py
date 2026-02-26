@@ -19,8 +19,8 @@ def _(f_csv, max_glucose_threshold, min_glucose_threshold, mo):
 
 
 @app.cell
-def _(f_csv, mo):
-    mo.stop(not f_csv.value)
+def _(mo):
+    # mo.stop(not f_csv.value)
 
     single_day = mo.ui.checkbox(label='Single Day View', value=True)
     multi_day = mo.ui.checkbox(label='Multi Day View')
@@ -45,7 +45,7 @@ def _(charts_by_day, combined_stdev_chart, date_range, mo, multi_day):
 
 @app.cell
 def _(date_range, heatmap_charts, hm_view, mo):
-    mo.vstack([date_range, heatmap_charts]) if hm_view.value else None
+    mo.vstack([date_range, mo.vstack(heatmap_charts)]) if hm_view.value else None
     return
 
 
@@ -56,9 +56,12 @@ def _(data_view, df_glucose, df_treatment, mo):
 
 
 @app.cell
-def _():
+async def _():
     import marimo as mo
 
+    if mo.notebook_dir() != mo.notebook_location():
+        import micropip
+        await micropip.install('polars')
     return (mo,)
 
 
@@ -73,9 +76,14 @@ def _():
 
 @app.cell
 def _(f_csv, io, mo, pl):
-    mo.stop(not f_csv.value)
+    # mo.stop(not f_csv.value)
 
-    csv_content = f_csv.value[0].contents.decode(encoding='utf-8')
+    if not f_csv.value:
+        with open(f"{mo.notebook_location()}/public/CSV_sample.csv", 'r') as file:
+            csv_content = file.read()
+    else:
+        csv_content = f_csv.value[0].contents.decode(encoding='utf-8')
+
     lines = csv_content.splitlines()
 
     tables_data = []
