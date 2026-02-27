@@ -70,17 +70,21 @@ def _():
     import polars as pl
     import io
     import altair as alt
+    import httpx
 
-    return alt, io, pl
+    return alt, httpx, io, pl
 
 
 @app.cell
-def _(f_csv, io, mo, pl):
+def _(f_csv, httpx, io, mo, pl):
     # mo.stop(not f_csv.value)
 
     if not f_csv.value:
-        with open(f"{mo.notebook_location()}/public/CSV_sample.csv", 'r') as file:
-            csv_content = file.read()
+        if str(mo.notebook_location()).startswith('http'):
+            csv_content = httpx.get(f"{mo.notebook_location()}/public/CSV_sample.csv").text
+        else:
+            with open(f"{mo.notebook_location()}/public/CSV_sample.csv", 'r') as file:
+                csv_content = file.read()
     else:
         csv_content = f_csv.value[0].contents.decode(encoding='utf-8')
 
